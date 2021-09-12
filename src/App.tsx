@@ -8,9 +8,9 @@ interface ResponseType {
 }
 
 function App() {
-  const { loading, data } = useRequest<ResponseType>(
-    "http://localhost:8000/api/sample"
-  );
+  const url = `${process.env.REACT_APP_SERVER_URL}/api/sample`;
+
+  const { loading, data } = useRequest<ResponseType>(url);
 
   return (
     <div className="App">
