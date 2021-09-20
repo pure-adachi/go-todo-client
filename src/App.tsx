@@ -1,23 +1,12 @@
 import React from "react";
-import logo from "./logo.svg";
-import "./App.css";
-import { useRequest } from "./requester";
-
-interface ResponseType {
-  message: string;
-}
+import Header from "./components/atoms/Header";
+import Main from "./components/templates/Main";
 
 function App() {
-  const url = `${process.env.REACT_APP_SERVER_URL}/api/sample`;
-
-  const { loading, data } = useRequest<ResponseType>(url);
-
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>{loading ? "Loading ..." : data?.message}</p>
-      </header>
+    <div className="flex flex-col min-h-screen h-full bg-gray-100">
+      <Header />
+      <Main />
     </div>
   );
 }
