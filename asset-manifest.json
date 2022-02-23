@@ -1,8 +1,8 @@
 {
   "files": {
     "main.css": "/go-todo-client/static/css/main.0ca09a9e.chunk.css",
-    "main.js": "/go-todo-client/static/js/main.9465be16.chunk.js",
-    "main.js.map": "/go-todo-client/static/js/main.9465be16.chunk.js.map",
+    "main.js": "/go-todo-client/static/js/main.c8201acb.chunk.js",
+    "main.js.map": "/go-todo-client/static/js/main.c8201acb.chunk.js.map",
     "runtime-main.js": "/go-todo-client/static/js/runtime-main.3b16b3a8.js",
     "runtime-main.js.map": "/go-todo-client/static/js/runtime-main.3b16b3a8.js.map",
     "static/js/2.de466538.chunk.js": "/go-todo-client/static/js/2.de466538.chunk.js",
@@ -17,6 +17,6 @@
     "static/js/runtime-main.3b16b3a8.js",
     "static/js/2.de466538.chunk.js",
     "static/css/main.0ca09a9e.chunk.css",
-    "static/js/main.9465be16.chunk.js"
+    "static/js/main.c8201acb.chunk.js"
   ]
 }
