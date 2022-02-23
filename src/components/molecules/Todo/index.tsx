@@ -28,7 +28,7 @@ class Todo extends Component<Props, State> {
   private updateTodo() {
     if (!this.state.inputText) return;
 
-    const url = `${process.env.REACT_APP_SERVER_URL}/api/todos/${this.props.todo.Id}`;
+    const url = `${process.env.REACT_APP_SERVER_URL}/api/todos/${this.props.todo.ID}`;
 
     fetch(url, {
       method: "PATCH",
@@ -43,7 +43,7 @@ class Todo extends Component<Props, State> {
 
   private deleteTodo() {
     if (window.confirm("Do you want to delete it?")) {
-      const url = `${process.env.REACT_APP_SERVER_URL}/api/todos/${this.props.todo.Id}`;
+      const url = `${process.env.REACT_APP_SERVER_URL}/api/todos/${this.props.todo.ID}`;
 
       fetch(url, { method: "DELETE" }).then(() => {
         this.props.refetch();
