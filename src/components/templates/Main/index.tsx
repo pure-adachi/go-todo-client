@@ -1,54 +1,43 @@
-import React, { ChangeEvent, Component, KeyboardEvent } from "react";
+import React, { useState, useEffect, ChangeEvent, KeyboardEvent } from "react";
 import InputText from "../../atoms/InputText";
 import Button from "../../atoms/Button";
-import { baseUrl } from "../../../requester";
 import { Todo } from "../../../types";
+import { baseUrl } from "../../../requester";
 
-interface State {
-  newTodoInputText: string | null;
-  todos: Todo[];
-}
+const MainHook = () => {
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [newTodoInputText, setNewTodoInputText] = useState<string | null>(null);
 
-class Main extends Component<{}, State> {
-  constructor(props: {}) {
-    super(props);
+  useEffect(() => {
+    loadTodos();
+  }, []);
 
-    this.state = {
-      newTodoInputText: null,
-      todos: [],
-    };
-  }
-
-  componentDidMount() {
-    this.loadTodos();
-  }
-
-  private loadTodos() {
+  const loadTodos = () => {
     fetch(`${baseUrl}/api/todos`, {
       method: "GET",
     })
       .then((response) => response.json())
-      .then(({ todos }) => {
-        this.setState({ todos });
-      });
-  }
+      .then(({ todos }) => setTodos(todos));
+  };
 
-  private handleChangeNewTodoInputText(e: ChangeEvent<HTMLInputElement>) {
-    this.setState({ newTodoInputText: e.currentTarget.value });
-  }
+  const handleChangeNewTodoInputText = (e: ChangeEvent<HTMLInputElement>) => {
+    setNewTodoInputText(e.currentTarget.value);
+  };
 
-  private handleKeyPressNewTodoInputText(e: KeyboardEvent<HTMLInputElement>) {
+  const handleKeyPressNewTodoInputText = (
+    e: KeyboardEvent<HTMLInputElement>
+  ) => {
     if (e.key !== "Enter") return;
 
-    this.addTodo();
-  }
+    addTodo();
+  };
 
-  private handleChangeEditTodoInputText(
+  const handleChangeEditTodoInputText = (
     ID: number,
     e: ChangeEvent<HTMLInputElement>
-  ) {
-    this.setState({
-      todos: this.state.todos.map((todo) => {
+  ) => {
+    setTodos(
+      todos.map((todo) => {
         if (todo.ID === ID) {
           return {
             ...todo,
@@ -57,26 +46,26 @@ class Main extends Component<{}, State> {
         } else {
           return todo;
         }
-      }),
-    });
-  }
+      })
+    );
+  };
 
-  private addTodo() {
-    if (!this.state.newTodoInputText) return;
+  const addTodo = () => {
+    if (!newTodoInputText) return;
 
     fetch(`${baseUrl}/api/todos`, {
       method: "POST",
       body: JSON.stringify({
-        Title: this.state.newTodoInputText,
+        Title: newTodoInputText,
       }),
     }).then(() => {
-      this.setState({ newTodoInputText: null });
-      this.loadTodos();
+      setNewTodoInputText(null);
+      loadTodos();
     });
-  }
+  };
 
-  private updateTodo(ID: number) {
-    const todo = this.state.todos.find((todo) => todo.ID === ID);
+  const updateTodo = (ID: number) => {
+    const todo = todos.find((todo) => todo.ID === ID);
 
     if (!todo) return;
 
@@ -87,14 +76,14 @@ class Main extends Component<{}, State> {
       }),
     }).then(() => {
       alert("The save was successful.");
-      this.loadTodos();
+      loadTodos();
     });
-  }
+  };
 
-  private deleteTodo(ID: number) {
+  const deleteTodo = (ID: number) => {
     if (!window.confirm("Do you want to delete it?")) return;
 
-    const todo = this.state.todos.find((todo) => todo.ID === ID);
+    const todo = todos.find((todo) => todo.ID === ID);
 
     if (!todo) return;
 
@@ -102,58 +91,57 @@ class Main extends Component<{}, State> {
       method: "DELETE",
     }).then(() => {
       alert("It has been deleted.");
-      this.loadTodos();
+      loadTodos();
     });
-  }
+  };
 
-  render() {
-    return (
-      <div className="flex flex-col justify-center p-10">
-        <div className="flex justify-center text-lg my-5">
-          <InputText
-            className="border-red-300"
-            value={this.state.newTodoInputText || ""}
-            onChange={this.handleChangeNewTodoInputText.bind(this)}
-            onKeyPress={this.handleKeyPressNewTodoInputText.bind(this)}
-          />
-          <Button
-            className="ml-3 bg-green-400"
-            onClick={this.addTodo.bind(this)}
-          >
-            Add
-          </Button>
-        </div>
+  console.log("render MainHook");
 
-        <div className="flex justify-center text-lg my-5">
-          <ol>
-            {this.state.todos.map((todo, i) => (
-              <li className="flex py-2" key={i}>
-                <InputText
-                  className="flex-auto"
-                  value={todo.Title}
-                  onChange={(e) =>
-                    this.handleChangeEditTodoInputText(todo.ID, e)
-                  }
-                />
-                <Button
-                  className="ml-5 border-2 border-blue-400 text-blue-400 hover:text-white hover:bg-blue-400"
-                  onClick={() => this.updateTodo(todo.ID)}
-                >
-                  Save
-                </Button>
-                <Button
-                  className="ml-2 border-2 border-red-400 text-red-400 hover:text-white hover:bg-red-400"
-                  onClick={() => this.deleteTodo(todo.ID)}
-                >
-                  Del
-                </Button>
-              </li>
-            ))}
-          </ol>
-        </div>
+  return (
+    <div className="flex flex-col justify-center p-10">
+      <div className="flex justify-center text-lg my-5">
+        <InputText
+          className="border-red-300"
+          value={newTodoInputText || ""}
+          onChange={handleChangeNewTodoInputText}
+          onKeyPress={handleKeyPressNewTodoInputText}
+        />
+        <Button
+          className="ml-3 bg-green-400 disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled={!newTodoInputText}
+          onClick={() => addTodo()}
+        >
+          Add
+        </Button>
       </div>
-    );
-  }
-}
 
-export default Main;
+      <div className="flex justify-center text-lg my-5">
+        <ol>
+          {todos.map(({ ID, Title }, i) => (
+            <li className="flex py-2" key={i}>
+              <InputText
+                className="flex-auto"
+                value={Title}
+                onChange={(e) => handleChangeEditTodoInputText(ID, e)}
+              />
+              <Button
+                className="ml-5 border-2 border-blue-400 text-blue-400 hover:text-white hover:bg-blue-400"
+                onClick={() => updateTodo(ID)}
+              >
+                Save
+              </Button>
+              <Button
+                className="ml-2 border-2 border-red-400 text-red-400 hover:text-white hover:bg-red-400"
+                onClick={() => deleteTodo(ID)}
+              >
+                Del
+              </Button>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </div>
+  );
+};
+
+export default MainHook;
