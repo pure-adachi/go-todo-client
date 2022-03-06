@@ -1,5 +1,7 @@
 import { useEffect, useReducer } from "react";
 
+export const baseUrl = process.env.REACT_APP_SERVER_URL;
+
 export const useRequest = <T>(path: string) => {
   interface StatusType {
     loading: boolean;
@@ -19,7 +21,7 @@ export const useRequest = <T>(path: string) => {
     data: null,
   };
 
-  const url = `${process.env.REACT_APP_SERVER_URL}${path}`;
+  const url = `${baseUrl}${path}`;
 
   const reducer = (state: StatusType, { type, data, error }: ActionType) => {
     switch (type) {
