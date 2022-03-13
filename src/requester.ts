@@ -68,3 +68,27 @@ export const useRequest = <T>(path: string) => {
 
   return state;
 };
+
+export const requestAddTodo = (Title: string) => {
+  return fetch(`${baseUrl}/api/todos`, {
+    method: "POST",
+    body: JSON.stringify({
+      Title,
+    }),
+  });
+};
+
+export const requestUpdateTodo = (ID: number, Title: string) => {
+  return fetch(`${baseUrl}/api/todos/${ID}`, {
+    method: "PATCH",
+    body: JSON.stringify({
+      Title,
+    }),
+  });
+};
+
+export const requestDeleteTodo = (ID: number) => {
+  return fetch(`${baseUrl}/api/todos/${ID}`, {
+    method: "DELETE",
+  });
+};
