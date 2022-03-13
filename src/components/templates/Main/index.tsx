@@ -1,29 +1,20 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React from "react";
 import AddTodoForm from "../../molecules/AddTodoForm";
 import TodoList from "../../molecules/TodoList";
-import { Todo } from "../../../types";
-import { baseUrl } from "../../../requester";
+import { useTodosQuery } from "../../../requester/query";
 
 const MainHook = () => {
-  const [todos, setTodos] = useState<Todo[]>([]);
-
-  useEffect(() => {
-    loadTodos();
-  }, []);
-
-  const loadTodos = () => {
-    fetch(`${baseUrl}/api/todos`, {
-      method: "GET",
-    })
-      .then((response) => response.json())
-      .then(({ todos }) => setTodos(todos));
-  };
+  const {
+    loading,
+    data: { todos },
+    refetch,
+  } = useTodosQuery();
 
   return (
     <div className="flex flex-col justify-center p-10">
-      <AddTodoForm refetch={useCallback(loadTodos, [])} />
+      <AddTodoForm refetch={refetch} />
 
-      <TodoList todos={todos} refetch={useCallback(loadTodos, [])} />
+      {loading ? "Loading ..." : <TodoList todos={todos} refetch={refetch} />}
     </div>
   );
 };

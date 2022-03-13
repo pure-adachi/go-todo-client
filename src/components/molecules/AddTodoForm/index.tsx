@@ -1,7 +1,7 @@
 import React, { memo, useState, ChangeEvent, KeyboardEvent } from "react";
 import InputText from "../../atoms/InputText";
 import Button from "../../atoms/Button";
-import { requestAddTodo } from "../../../requester";
+import { useAddTodoMutation } from "../../../requester/mutation";
 
 interface Props {
   refetch: () => void;
@@ -9,6 +9,12 @@ interface Props {
 
 const AddTodoForm = ({ refetch }: Props) => {
   const [inputText, setInputText] = useState<string | null>();
+  const [submit, { loading }] = useAddTodoMutation({
+    update: () => {
+      setInputText(null);
+      refetch();
+    },
+  });
 
   const handleChangeInputText = (e: ChangeEvent<HTMLInputElement>) => {
     setInputText(e.currentTarget.value);
@@ -23,9 +29,10 @@ const AddTodoForm = ({ refetch }: Props) => {
   const addTodo = () => {
     if (!inputText) return;
 
-    requestAddTodo(inputText).then(() => {
-      setInputText(null);
-      refetch();
+    submit({
+      variables: {
+        Title: inputText,
+      },
     });
   };
 
@@ -34,12 +41,13 @@ const AddTodoForm = ({ refetch }: Props) => {
       <InputText
         className="border-red-300"
         value={inputText || ""}
+        disabled={loading}
         onChange={handleChangeInputText}
         onKeyPress={handleKeyPressInputText}
       />
       <Button
         className="ml-3 bg-green-400"
-        disabled={!inputText}
+        disabled={!inputText || loading}
         onClick={() => addTodo()}
       >
         Add
