@@ -5,9 +5,14 @@ const Button = ({
   disabled,
   ...props
 }: ButtonHTMLAttributes<HTMLButtonElement>) => {
-  const classNames = `${className} text-white px-3 py-1 rounded-sm ${
-    disabled ? "disabled:opacity-50 disabled:cursor-not-allowed" : ""
-  }`;
+  const classNames = [
+    className,
+    "p-2",
+    "border-2",
+    "rounded",
+    disabled ? "disabled:opacity-30" : "",
+    disabled ? "disabled:cursor-not-allowed" : "",
+  ].join(" ");
 
   return <button {...props} disabled={disabled} className={classNames} />;
 };

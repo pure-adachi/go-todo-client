@@ -1,14 +1,16 @@
 import React from "react";
-import Header from "./components/atoms/Header";
-import Main from "./components/templates/Main";
+import Todos from "./components/molecules/Todos";
 
-function App() {
+const App = () => {
   return (
-    <div className="flex flex-col min-h-screen h-full bg-gray-100">
-      <Header />
-      <Main />
+    <div className="h-screen bg-gray-300 flex items-center justify-center">
+      <div className="bg-white p-8 rounded-lg shadow-2xl">
+        <div className="font-bold text-xl mb-2">TODO List</div>
+
+        <Todos />
+      </div>
     </div>
   );
-}
+};
 
 export default App;

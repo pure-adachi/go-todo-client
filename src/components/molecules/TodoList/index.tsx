@@ -1,22 +1,19 @@
-import React, { memo } from "react";
-import TodoLi from "../../molecules/TodoLi";
-import { Todo } from "../../../types";
+import React from "react";
+import Todo from "../Todo";
+import { Todo as TodoType } from "../../../types";
 
 interface Props {
-  todos: Todo[];
-  refetch: () => void;
+  todos: TodoType[];
 }
 
-const TodoList = ({ todos, refetch }: Props) => {
+const TodoList = ({ todos }: Props) => {
   return (
-    <div className="flex justify-center text-lg my-5">
-      <ol>
-        {todos.map((todo, i) => (
-          <TodoLi key={i} todo={todo} refetch={refetch} />
-        ))}
-      </ol>
+    <div>
+      {todos.map((todo) => (
+        <Todo key={todo.ID} todo={todo} />
+      ))}
     </div>
   );
 };
 
-export default memo(TodoList);
+export default TodoList;

@@ -8,7 +8,7 @@ const InputText = ({
     <input
       {...props}
       type="text"
-      className={`${className} border-b-2 bg-transparent px-2`}
+      className={`${className} border rounded w-full py-2 px-3`}
     />
   );
 };
