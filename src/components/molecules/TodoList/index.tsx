@@ -4,15 +4,16 @@ import { Todo as TodoType } from "../../../types";
 
 interface Props {
   todos: TodoType[];
+  loadTodos: () => void;
 }
 
-const TodoList = ({ todos }: Props) => {
+const TodoList = ({ todos, loadTodos }: Props) => {
   // レンダリングされているか分かりやすくする場合
   console.log("rendered TodoList component");
   return (
     <div>
       {todos.map((todo) => (
-        <Todo key={todo.ID} todo={todo} />
+        <Todo key={todo.ID} todo={todo} loadTodos={loadTodos} />
       ))}
     </div>
   );

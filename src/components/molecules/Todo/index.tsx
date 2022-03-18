@@ -6,9 +6,10 @@ import Button from "../../atoms/Button";
 
 interface Props {
   todo: TodoType;
+  loadTodos: () => void;
 }
 
-const Todo = ({ todo: { ID, Title } }: Props) => {
+const Todo = ({ todo: { ID, Title }, loadTodos }: Props) => {
   const [inputText, setInputText] = useState<string | null>(Title);
 
   const handleChangeInputText = (e: ChangeEvent<HTMLInputElement>) => {
@@ -18,13 +19,13 @@ const Todo = ({ todo: { ID, Title } }: Props) => {
   const handleClickUpdateTodo = () => {
     if (!inputText) return;
 
-    updateTodo(ID, inputText);
+    updateTodo(ID, inputText).then(loadTodos);
   };
 
   const handleClickDeleteTodo = () => {
     if (!window.confirm("Do you want to delete it?")) return;
 
-    deleteTodo(ID);
+    deleteTodo(ID).then(loadTodos);
   };
 
   return (

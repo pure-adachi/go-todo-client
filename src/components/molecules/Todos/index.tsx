@@ -52,7 +52,7 @@ const Todos = () => {
         </Button>
       </div>
 
-      <TodoList todos={todos} />
+      <TodoList todos={todos} loadTodos={loadTodos} />
     </div>
   );
 };
