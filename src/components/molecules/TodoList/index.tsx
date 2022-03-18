@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo } from "react";
 import Todo from "../Todo";
 import { Todo as TodoType } from "../../../types";
 
@@ -7,6 +7,8 @@ interface Props {
 }
 
 const TodoList = ({ todos }: Props) => {
+  // レンダリングされているか分かりやすくする場合
+  console.log("rendered TodoList component");
   return (
     <div>
       {todos.map((todo) => (
@@ -16,4 +18,4 @@ const TodoList = ({ todos }: Props) => {
   );
 };
 
-export default TodoList;
+export default memo(TodoList);
