@@ -1,4 +1,4 @@
-import React, { useEffect, useState, ChangeEvent } from "react";
+import React, { useEffect, useState, ChangeEvent, useCallback } from "react";
 import TodoList from "../TodoList";
 import { getTodos, addTodo } from "../../../FetchRequest";
 import InputText from "../../atoms/InputText";
@@ -9,9 +9,9 @@ const Todos = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [inputText, setInputText] = useState<string | null>();
 
-  const loadTodos = () => {
+  const loadTodos = useCallback(() => {
     getTodos().then((todos) => setTodos(todos));
-  };
+  }, []);
 
   useEffect(() => {
     loadTodos();

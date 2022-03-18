@@ -1,65 +1,23 @@
-# Chapter 2: 更新、削除後に、Todo 一覧を再取得する
+# Chapter 3: TodoList コンポーネントに渡す loadTodos 関数をメモ化する
 
-- 現状、`Todo`のタイトルを更新した後や、削除した後は、何もしていない為、最新情報を表示するには、画面をリロードする必要がある。
-- `Todos`コンポーネントに定義してある、`loadTodos`メソッドをそれぞれの処理の後に呼び出したい。
-- `TodoList` → `Todo` と`loadTodos`メソッドを渡し、それぞれの処理の後で呼び出せるようにする。
+- `TodoList`コンポーネントに`loadTodos`メソッドを渡すようにしたことで、追加用の入力フォームに値を入力するたびに、`TodoList`コンポーネントが再レンダリングされるようになってしまった。
+- これは、`Todos` コンポーネント内にある、`inputText` の値が、`Todo` 追加用の入力フォームに値を入力するたびに、更新しており、状態が変わったことを検知した、`Todos` コンポーネントは、再レンダリングされ、そのタイミングで、`loadTodos`関数も新しく作り直される。
+- `loadTodos`関数が新しくなっているので、`TodoList`は、渡している値に変更があると判断し、`TodoList`コンポーネントが再レンダリングされてしまう。
+- この再レンダリングのタイミングでは、`TodoList`コンポーネントを再レンダリングしたくない。
 
-## Todo コンポーネントで loadTodos メソッドを受ける準備
-
-- `src/components/molecules/Todo/index.tsx`
-
-```diff
- interface Props {
-   todos: TodoType[];
-+  loadTodos: () => void;
- }
-```
-
-## TodoList コンポーネントで loadTodos メソッドを受ける準備と、Todo コンポーネントに渡す
+## `loadTodos`関数をメモ化
 
 - `src/components/molecules/TodoList/index.tsx`
 
 ```diff
- interface Props {
-   todos: TodoType[];
-+  loadTodos: () => void;
- }
+-import React, { useEffect, useState, ChangeEvent } from "react";
++import React, { useEffect, useState, ChangeEvent, useCallback } from "react";
 ```
 
 ```diff
--const TodoList = ({ todos }: Props) => {
-+const TodoList = ({ todos, loadTodos }: Props) => {
-```
-
-```diff
--<Todo key={todo.ID} todo={todo} />
-+<Todo key={todo.ID} todo={todo} loadTodos={loadTodos} />
-```
-
-## Todos コンポーネントで、TodoList コンポーネントに loadTodos メソッドを渡す
-
-- `src/components/molecules/Todos/index.tsx`
-
-```diff
--<TodoList todos={todos} />
-+<TodoList todos={todos} loadTodos={loadTodos} />
-```
-
-## Todo コンポーネントで loadTodos メソッドを使う（更新、削除処理後）
-
-- `src/components/molecules/Todo/index.tsx`
-
-```diff
--const Todo = ({ todo: { ID, Title } }: Props) => {
-+const Todo = ({ todo: { ID, Title }, loadTodos }: Props) => {
-```
-
-```diff
--updateTodo(ID, inputText);
-+updateTodo(ID, inputText).then(loadTodos);
-```
-
-```diff
--deleteTodo(ID);
-+deleteTodo(ID).then(loadTodos);
+-const loadTodos = () => {
++const loadTodos = useCallback(() => {
+   getTodos().then((todos) => setTodos(todos));
+-});
++}, []);
 ```
