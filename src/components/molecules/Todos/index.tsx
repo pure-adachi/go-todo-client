@@ -1,21 +1,19 @@
-import React, { useEffect, useState, ChangeEvent, useCallback } from "react";
+import React, { useState, ChangeEvent, useCallback } from "react";
 import TodoList from "../TodoList";
-import { getTodos, addTodo } from "../../../FetchRequest";
+import { addTodo } from "../../../FetchRequest";
 import InputText from "../../atoms/InputText";
 import Button from "../../atoms/Button";
-import { Todo } from "../../../types";
+import { useTodosQuery } from "../../../requester";
 
 const Todos = () => {
-  const [todos, setTodos] = useState<Todo[]>([]);
   const [inputText, setInputText] = useState<string | null>();
+  const {
+    loading,
+    data: { todos },
+    refetch,
+  } = useTodosQuery();
 
-  const loadTodos = useCallback(() => {
-    getTodos().then((todos) => setTodos(todos));
-  }, []);
-
-  useEffect(() => {
-    loadTodos();
-  }, []);
+  const loadTodos = useCallback(refetch, []);
 
   const handleChangeInputText = (e: ChangeEvent<HTMLInputElement>) => {
     setInputText(e.currentTarget.value);
@@ -52,7 +50,11 @@ const Todos = () => {
         </Button>
       </div>
 
-      <TodoList todos={todos} loadTodos={loadTodos} />
+      {loading ? (
+        "Loading..."
+      ) : (
+        <TodoList todos={todos} loadTodos={loadTodos} />
+      )}
     </div>
   );
 };
