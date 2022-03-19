@@ -1,115 +1,113 @@
-# Chapter 4: Apollo Client の useQuery みたいなフックを作る
+# Chapter 5: useReducer を使って、useTodosQuery をリファクタリング
 
-- `Todo`リストデータの取得を、`Apollo Client`の`useQuery`みたいに出来ると、`useState`で持つような仕組みを作らなくて良い。
-- `useTodosQuery`で、`loading`の状態更新や、`data`に`todos`データが入ると、自動で再レンダリングされるようにしたい。
-- また、`refetch`で、再取得を行うメソッドも提供したい。
-- 今回は、`react-cache`のようなキャッシュの部分は実装しません。
+- `useReducer`とは、`useState`と似ていて、状態を管理する役割を持つ。
+- 以下のように、状態を表す`state`とアクションを実行する関数`dispatch`を返してくれます。
+  ```js
+  const [state, dispatch] = useReducer(reducer, initialState);
+  ```
+- `reducer`は`(state, action) => newState`という関数で、`dispatch`から呼び出された際に、渡される引数が`action`
+- 現在の状態である`state`に対して、`action`による、変更を加え、返すと`state`が更新され、再レンダリングされるという流れ
 
-## `useTodosQuery`メソッドを定義する（仮）
-
-一旦、メソッドだけ用意
+## useReducer を使う
 
 - `src/requester.ts`
 
 ```diff
-+export const useTodosQuery = () => {
-+  const state = { loading: true, data: { todos: [] } };
-+  const refetch = () => {};
-+
-+  return {
-+    ...state,
-+    refetch,
+-import { useEffect, useState } from "react";
++import { useEffect, useReducer } from "react";
+```
+
+```diff
+-const [state, setState] = useState({ loading: false, data: { todos: [] } });
++interface State {
++  loading: boolean;
++  data: {
++    todos: Todo[];
 +  };
++}
+
++const initialState: State = {
++  loading: false,
++  data: {
++    todos: [],
++  },
 +};
+
++interface Action {
++  type: "init" | "start" | "finish";
++  data?: {
++    todos: Todo[];
++  };
++}
+
++const reducer = (state: State, action: Action) => {
++  switch (action.type) {
++    default:
++      return initialState;
++  }
++};
+
++const [state, dispatch] = useReducer(reducer, initialState);
+
+ const refetch = () => {
+-  setState({
+-    ...state,
+-    loading: true,
+-  });
++  dispatch({ type: "start" });
+   fetch(`${baseUrl}/api/todos`)
+     .then((response) => response.json())
+-    .then(({ todos }) => {
+-      setState({
+-        ...state,
+-        loading: false,
+-        data: { todos },
+-      });
+-    });
++    .then((data) => dispatch({ type: "finish", data }));
+ };
+
+   useEffect(() => {
+     refetch();
+     // unmount時にstateを初期化
++    return () => dispatch({ type: "init" });
+   }, []);
 ```
 
-## `useTodosQuery`メソッドを使う
+一旦、何もアクションを受け付けていない形でできたので、`Todo`リストは表示されない
 
-- `src/components/molecules/Todos/index.tsx`
+## `fetch`開始の`start`アクションを追加する
 
 ```diff
--import React, { useEffect, useState, ChangeEvent, useCallback } from "react";
-+import React, { useState, ChangeEvent, useCallback } from "react";
--import { getTodos, addTodo } from "../../../FetchRequest";
-+import { addTodo } from "../../../FetchRequest";
--import { Todo } from "../../../types";
-+import { useTodosQuery } from "../../../requester";
+ const reducer = (state: State, action: Action) => {
+    switch (action.type) {
++      case "start":
++        return { ...state, loading: true };
+       default:
+          return initialState;
+    }
+ };
 ```
 
-```diff
--const [todos, setTodos] = useState<Todo[]>([]);
- const [inputText, setInputText] = useState<string | null>();
-+const {
-+  loading,
-+  data: { todos },
-+  refetch,
-+} = useTodosQuery();
+一瞬だけ、`Loading...`が表示されるようになった
 
--const loadTodos = useCallback(() => {
--   getTodos().then((todos) => setTodos(todos));
--}, []);
-+const loadTodos = useCallback(refetch, []);
-
--useEffect(() => {
--   loadTodos();
--}, []);
-```
+## `fetch`終了と、`data`格納のための`finish`アクションを追加する
 
 ```diff
--<TodoList todos={todos} loadTodos={loadTodos} />
-+{loading ? (
-+   "Loading..."
-+) : (
-+   <TodoList todos={todos} loadTodos={loadTodos} />
-+)}
-```
-
-これで`Loading...`は表示されるようになった
-
-## `useTodosQuery`メソッドを定義する
-
-```diff
-+import { useEffect, useState } from "react";
-```
-
-```diff
- export const useTodosQuery = () => {
--  const state = { loading: true, data: { todos: [] } };
-+  const [state, setState] = useState({ loading: false, data: { todos: [] } });
-
--  const refetch = () => {};
-+  const refetch = () => {
-+    setState({
-+      ...state,
-+      loading: true,
-+    });
-+    fetch(`${baseUrl}/api/todos`)
-+      .then((response) => response.json())
-+      .then(({ todos }) => {
-+        setState({
+   const reducer = (state: State, action: Action) => {
+     switch (action.type) {
+       case "start":
+         return { ...state, loading: true };
++      case "finish":
++        return {
 +          ...state,
 +          loading: false,
-+          data: { todos },
-+        });
-+      });
-+  };
-
-+  useEffect(() => {
-+    refetch();
-+  }, []);
-
-  return {
-    ...state,
-    refetch,
-  };
-};
++          data: { todos: action.data?.todos || [] },
++        };
+       default:
+         return initialState;
+     }
+   };
 ```
 
-元通り動くようにはなった。
-
-## 微妙だなと思うこと
-
-- `loading`、`data`をそれぞれ`useState`で持つと、それぞれの状態が変更されたタイミングで、再レンダリングされてしまう。
-- なので、それぞれの値を持った 1 つの連想配列としていて、`Redux`でいう、`Store`のようになっている。
-- `fetch`が始まったアクション、`fetch`が終わってデータを格納するアクションで、`state`を更新しているが、複数の状態を持っているので、他のデータを更新しないよう気にしつつ、更新したいデータだけ気をつけて更新する必要があるので、アクション毎にメソッドを分けてもよかったかもしれない。
-- ここまで行くと`Redux`の感覚で、アクション毎に切り分け、それぞれの状態を変更できるよな仕組みにできれば、綺麗に書けるはず！
+元通り動くようになった

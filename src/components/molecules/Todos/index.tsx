@@ -28,6 +28,8 @@ const Todos = () => {
     });
   };
 
+  console.log("loading", loading);
+
   return (
     <div>
       <div className="flex mb-4">
