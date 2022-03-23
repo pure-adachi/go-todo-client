@@ -7,7 +7,7 @@
 
 ## `loadTodos`関数をメモ化
 
-- `src/components/molecules/TodoList/index.tsx`
+- `src/components/molecules/Todos/index.tsx`
 
 ```diff
 -import React, { useEffect, useState, ChangeEvent } from "react";
