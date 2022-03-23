@@ -10,7 +10,7 @@
 
 ```diff
  interface Props {
-   todos: TodoType[];
+   todo: TodoType;
 +  loadTodos: () => void;
  }
 ```
